@@ -1,19 +1,8 @@
 const mongoose = require("mongoose");
+const assert = require("assert");
 const User = require("../src/user");
 const Comment = require("../src/comment");
 const BlogPost = require("../src/blogPost");
-
-// beforeEach(done => {
-//   const { users, comments, blogposts } = mongoose.connection.collections;
-//   users.drop(() => {
-//     comments.drop(() => {
-//       blogposts.drop(() => {
-
-//       });
-//     });
-//   });
-//   done();
-// });
 
 describe("Test of Association", () => {
   let joe, blogPost, comment;
@@ -40,20 +29,33 @@ describe("Test of Association", () => {
   });
 
   it("saves a full relation tree", done => {
-      User.findOne({name:'Cansinn'})
+    User.findOne({ name: "Cansinn" })
       .populate({
-          path:'blogPosts',
-          populate:{
-              path:'comments',
-              model:'comment',
-              populate:{
-                  path:'user',
-                  model:'user'
-              }
+        path: "blogPosts",
+        populate: {
+          path: "comments",
+          model: "comment",
+          populate: {
+            path: "user",
+            model: "user"
           }
-      }).then(user=>{
-          console.log(user.blogPosts[0].comments);
-          done();
+        }
       })
+      .then(user => {
+        console.log(user.blogPosts[0].comments);
+        done();
+      });
+  });
+
+  it("can sort, skip and limit the result set", done => {
+    User.find({})
+      .sort({ _id: -1 }) //-1 for desc
+      .skip(0)
+      .limit(5)
+      .then(users => {
+        console.log("Users: ", users);
+        assert(users.length === 5);
+        done();
+      });
   });
 });

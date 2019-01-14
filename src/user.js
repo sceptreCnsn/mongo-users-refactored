@@ -19,8 +19,11 @@ const UserSchema = new Schema({
   ]
 });
 
-UserSchema.virtual("postCount").get(function() {
-  return this.posts.count;
+//Pre Middleware Example
+UserSchema.pre("remove", function() {
+  // this === User object
+  const BlogPost = mongoose.model("blogPost");
+  BlogPost.remove({ _id: { $in: this.blogPosts } }).then(() => next());
 });
 
 const User = mongoose.model("user", UserSchema);
