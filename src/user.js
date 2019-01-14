@@ -1,23 +1,28 @@
 const mongoose = require("mongoose");
-const BlogPostSchema = require('./blogPost');
+const BlogPost = require("./blogPost");
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
-    name:{
-        type:String,
-        validate:{
-            validator:name=>name.length>2,
-            message:'Name must be longer than 2 chars.'
-        },
-        required:[true,'Name is required']
+  name: {
+    type: String,
+    validate: {
+      validator: name => name.length > 2,
+      message: "Name must be longer than 2 chars."
     },
-    posts:[BlogPostSchema]
+    required: [true, "Name is required"]
+  },
+  blogPosts: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "blogPost"
+    }
+  ]
 });
 
-const User = mongoose.model('user',UserSchema);
+UserSchema.virtual("postCount").get(function() {
+  return this.posts.count;
+});
 
-UserSchema.virtual('postsCount').get(function(){
-    return this.posts.count;
-})
+const User = mongoose.model("user", UserSchema);
 
 module.exports = User;
